@@ -19,7 +19,6 @@ main
 			;		Include any setup code here prior to loop that loads data elements in array
 			;#################################################################################
 			mov		r6, r5			; location of last element of linked list - "tail pointer"
-			
 			mov		r7, #1			; Initialize loadLoop Counter
 			
 			ldr		r8, [r3]			; Add First Element of Array to Current Node
@@ -28,7 +27,7 @@ main
 			;#################################################################################
 			;		Load elements in the array and add them to a linked list Node(PREV, DATA, NEXT)
 			;#################################################################################
-loadLoop
+load_loop
 			lsl		r7, r7, #2		; Left Shift (x4) Index
 			ldr		r8, [r3, r7]		; r9 = data_to_sort[r7]
 			
@@ -38,14 +37,19 @@ loadLoop
 			
 			add		r7, r7, #1		; Increment r7 to next element in array
 			cmp		r7, r4			; Compare Current Element Index and Len of Array
-			blt		loadLoop			; If still less than then loop
+			blt		load_loop			; If still less than then loop
 			
-			bl		insertion_sort		; End of the Loop
+			;#################################################################################
+			;		SETUP CODE FOR INSERTION SORT
+			;#################################################################################
+			mov		r0, #1			; Initialize Increment Variable
 			
 			;#################################################################################
 			;		INSERTION SORT FUNCTION
 			;#################################################################################
-insertion_sort	
+insertion_sort
+			
+			
 			
 for_loop
 			
@@ -56,22 +60,36 @@ while_loop
 			;		HELPER FUNCTIONS
 			;#################################################################################
 			
-insert 		; Assume r0 is PREV Pointer, r1 is DATA, r2 is NEXT Pointer
+insert 		; Assume r8 is new Data and r6 is tail pointer to new Node
 			sub		r2, r6, #28		; Get Memory Addr of Previous Element
 			add		r9, r6, #36		; Get Memory Addr of Next Element
 			
-			str		r2, [r6]			; Store Address of Prev Element
+			str		r2, [r6, #0]		; Store Address of Prev Element
 			str		r8, [r6, #4]		; Store Data
 			str		r9, [r6, #8]		; Store Address of Next Element
 			
 			mov		r15, r14			; Return (r14 is the Link Register; r15 is the Program Counter)
 			
 			
-			;#################################################################################
-			;		SWAP FUNCTION
-			;#################################################################################
+swap			; Swap Relative to Pointer Passed in with r0 - r0 is Current Node
+			ldr		r1, [r0, #0]		; Load PREV Pointer of Current Node
+			ldr		r2, [r0, #8]		; Load NEXT Pointer of Current Node
+			str		r1, [r2, #0]		; Store PREV Pointer in PREV Position of Next Node
+			str		r2, [r1, #8]		; Store NEXT Pointer in NEXT Position of Previous Node
+			str		r1, [r0, #8]		; Store NEXT Pointer in NEXT Position of Current Node
+			ldr		r2, [r1, #0]		; Load PREV Pointer of Previous Node
+			str		r2, [r0, #0]		; Store PREV Pointer of Previous Node as PREV of Current Node
+			str		r0, [r2, #8]		; Store Current Node as NEXT Pointer of Previous Node
+			str		r0, [r1, #0]		; Store Current Node as PREV of Previous Node
 			
-			;#################################################################################
-			;		DELETE FUNCTION
-			;#################################################################################
+			mov		r15, r14
+			
+			
+delete		ldr		r1, [r0, #0]		; Load PREV Pointer
+			ldr		r2, [r0, #8]		; Load NEXT Pointer
+			str		r1, [r2, #0]		; Store PREV Pointer as PREV of Next Node
+			str		r2, [r1, #8]		; Store NEXT as NEXT of Previous Node
+			
+			mov		r15, r14
+			
 			end
