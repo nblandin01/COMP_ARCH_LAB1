@@ -23,15 +23,35 @@ main		ldr		r3, =data_to_sort   ; Load the starting address of the first
             ;#################################################################################
             ;  Start a loop here to load elements in the array and add them to a linked list
             ;#################################################################################
-            add     r6, r6, #32         ; every time you create a new struct, add 32 to
-                                        ; starting address of last struct to mimic
-                                        ; non-contiguous memory locations
-                                        ; I assume address of last struct is in r6
-                                        ; you DO NOT need to make this assumption
+       		loadLoop:  add     r6, r6, #32         	; every time you create a new struct, add 32 to
+                                        			; starting address of last struct to mimic
+                                        			; non-contiguous memory locations
+                                        			; I assume address of last struct is in r6
+                                        			; you DO NOT need to make this assumption
 
             ;#################################################################################
             ;  Add insert, swap, delete functions
             ;#################################################################################
+			
+            ;#################################################################################
+		  	;  INSERT FUNCTION
+            ;#################################################################################
+			Insert_funct:	
+						sub r2, r6 #28		;get address for last element
+						ldr r5, [r3]		;data of current element
+						add r4, r6, #36		;get address of next element 
+						str r2, [r6]		;[r6] address of previous element 
+						str r5, [r6, #4]	;[r6, #4] has data of the previous element
+						str r4, [r6, #8]	;[r6], #8] the address of next item
+						
+						mov r15, r14		;return 
+						 
 
+            ;#################################################################################
+		  	;  SWAP FUNCTION
+            ;#################################################################################
 
+            ;#################################################################################
+		  	;  DELETE FUNCTION
+            ;#################################################################################
 end
