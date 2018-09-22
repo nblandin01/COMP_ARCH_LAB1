@@ -41,11 +41,22 @@ loadLoop
 			blt		loadLoop			; If still less than then loop
 			
 			bl		insertion_sort		; End of the Loop
-
+			
 			;#################################################################################
-			;		INSERT FUNCTION - Assume r8 is currVal, r6 is address of new Node
-			;#################################################################################	
-insert 	
+			;		INSERTION SORT FUNCTION
+			;#################################################################################
+insertion_sort	
+			
+for_loop
+			
+while_loop
+			
+			
+			;#################################################################################
+			;		HELPER FUNCTIONS
+			;#################################################################################
+			
+insert 		; Assume r0 is PREV Pointer, r1 is DATA, r2 is NEXT Pointer
 			sub		r2, r6, #28		; Get Memory Addr of Previous Element
 			add		r9, r6, #36		; Get Memory Addr of Next Element
 			
@@ -55,15 +66,7 @@ insert
 			
 			mov		r15, r14			; Return (r14 is the Link Register; r15 is the Program Counter)
 			
-			;#################################################################################
-			;		INSERTION SORT FUNCTION
-			;#################################################################################
-insertion_sort
 			
-for_loop
-			
-while_loop
-				
 			;#################################################################################
 			;		SWAP FUNCTION
 			;#################################################################################
