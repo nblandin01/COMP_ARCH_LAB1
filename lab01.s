@@ -21,11 +21,9 @@ main
 			mov		r6, r5			; location of last element of linked list - "tail pointer"
 			mov		r7, #1			; Initialize loadLoop Counter
 			
-			ldr		r8, [r3]			; Add First Element of Array to Current Node
-			bl		insert
-			
 			;#################################################################################
 			;		Load elements in the array and add them to a linked list Node(PREV, DATA, NEXT)
+			;		Leaves an Empty Node Before Actual Linked List
 			;#################################################################################
 load_loop
 			lsl		r7, r7, #2		; Left Shift (x4) Index
@@ -42,19 +40,48 @@ load_loop
 			;#################################################################################
 			;		SETUP CODE FOR INSERTION SORT
 			;#################################################################################
-			mov		r0, #1			; Initialize Increment Variable
+			mov		r7, #1			; Initialize Increment Variable - i
 			
 			;#################################################################################
 			;		INSERTION SORT FUNCTION
 			;#################################################################################
-insertion_sort
+insertion_sort	cmp		r6, r4			; Compare i and Length of List
+			bge		end_sort
 			
+			mov		r7, r6			; Increment Variable j = i
 			
+while_loop	cmp		r6, #0			; While (j > 0)
+			ble		end_while
 			
-for_loop
+			mov		r7, r6			; Iterate Though List Until jth Element
+			ldr		r9, [r5, #8]		; Initialize r9 to Addr of First Element in List
 			
-while_loop
+for_loop		cmp		r7, #0
+			ble		end_for
 			
+			ldr		r9, [r9, #8]
+			sub		r7, r7, #1
+			b		for_loop
+end_for
+			ldr		r8, [r9, #0]		; Address of j-1th Element
+			ldr		r10,[r8, #4]		; Value of j-1th Element
+			ldr		r11,[r9, #4]		; Value of j-th Element of List
+			cmp		r10, r11			; Check arr[j - 1] > arr[j]
+			ble		end_while
+			
+			mov		r0, r9			; Load jth Element into Arg Register
+			bl		swap
+			sub		r7, r7, #1		; Decrement j--
+			b		while
+end_while
+			add		r6, r6, #1		; Increment i++
+			b		insertion_sort
+end_sort
+			
+			;#################################################################################
+			;		DELETE DUPLICATES IN LINKED LIST
+			;#################################################################################
+delete_dups
 			
 			;#################################################################################
 			;		HELPER FUNCTIONS
