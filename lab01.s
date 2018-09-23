@@ -93,8 +93,26 @@ end_sort		end
 			;#################################################################################
 			;		DELETE DUPLICATES IN LINKED LIST
 			;#################################################################################
-delete_dups
+delete_dups	ldr		r7, [r5, #8]		; Load First Element of Linked List
+			ldr		r8, [r7, #8]		; Load Second Element of Linked List
 			
+			cmp 		r7, #0			; Check for Null Pointer
+			beq		done
+
+			ldr		r9,  [r7, #4]		; Load Value of First Element
+			ldr		r10, [r8, #4]		; Load Value of Second Element
+
+			cmp		r9, r10			; If Equal then Delete Second One, Else Move On
+			bne		non_dup
+			mov		r0, r8			; Load into Register to Be Deleted
+			bl		delete
+			b		delete_dups
+
+non_dup		mov		r7, r8			; Iterate Through Linked List
+			b 		delete_dups
+			
+done			end
+				
 			;#################################################################################
 			;		HELPER FUNCTIONS
 			;#################################################################################
@@ -127,6 +145,3 @@ delete		ldr		r1, [r0, #0]		; Load PREV Pointer
 			str		r2, [r1, #8]		; Store NEXT as NEXT of Previous Node
 			
 			mov		r15, r14
-			
-done
-			end
