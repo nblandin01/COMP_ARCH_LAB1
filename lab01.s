@@ -18,65 +18,77 @@ main
 			;#################################################################################
 			;		Include any setup code here prior to loop that loads data elements in array
 			;#################################################################################
-			mov		r6, r5			; location of last element of linked list - "tail pointer"
-			mov		r7, #1			; Initialize loadLoop Counter
+			mov		r7, r5			; Curr Node Pointer
+			mov		r6, r5			; Next Node Pointer
+			mov		r10, #0			; Initialize loadLoop Counter
 			
 			;#################################################################################
 			;		Load elements in the array and add them to a linked list Node(PREV, DATA, NEXT)
-			;		Leaves an Empty Node Before Actual Linked List
 			;#################################################################################
 load_loop
-			lsl		r7, r7, #2		; Left Shift (x4) Index
-			ldr		r8, [r3, r7]		; r9 = data_to_sort[r7]
+			cmp		r10, r4			; Compare Current Element Index and Len of Array
+			beq		end_load
 			
 			add		r6, r6, #32         ; Create new Node: mimic non-contiguous memory locations
+			sub		r9, r7, #32		; Calculate PREV Pointer
 			
-			bl		insert			; Assume r8 is currVal, r6 is new Node
+			lsl		r2, r10, #2		; Left Shift (x4) Index: r9 = 4 * r7
+			ldr		r8, [r3, r2]		; Cauculate Current Data
 			
-			add		r7, r7, #1		; Increment r7 to next element in array
-			cmp		r7, r4			; Compare Current Element Index and Len of Array
-			blt		load_loop			; If still less than then loop
+			mov		r0, r9			; Load Argument Registers + Insert New Node
+			mov		r1, r8
+			mov		r2, r6
+			bl		insert
 			
+			mov		r7, r6			; Increment Pointer
+			add		r10, r10, #1		; Increment Index to next element in array
+			
+			b		load_loop			; If still less than then loop
+end_load
 			;#################################################################################
 			;		SETUP CODE FOR INSERTION SORT
 			;#################################################################################
-			mov		r7, #1			; Initialize Increment Variable - i
+			mov		r3, #1			; Initialize Increment Variable - i
+			
+			ldr		r7, [r5]			; Add Empty Node at Beginning
+			str		r5, [r7, #8]		; This Optimizes Our Algorithm
+			mov		r5, r7
 			
 			;#################################################################################
 			;		INSERTION SORT FUNCTION
 			;#################################################################################
-insertion_sort	cmp		r6, r4			; Compare i and Length of List
+insertion_sort	cmp		r3, r4			; Compare i and Length of List
 			bge		end_sort
 			
-			mov		r7, r6			; Increment Variable j = i
+			mov		r7, r3			; Increment Variable j = i
 			
-while_loop	cmp		r6, #0			; While (j > 0)
+while_loop	cmp		r7, #0			; While (j > 0)
 			ble		end_while
 			
-			mov		r7, r6			; Iterate Though List Until jth Element
-			ldr		r9, [r5, #8]		; Initialize r9 to Addr of First Element in List
+			mov		r8, r7			; Iterate Though List Until jth Element
+			ldr		r10, [r5, #8]		; Initialize to Addr of First Element in List
 			
-for_loop		cmp		r7, #0
+for_loop		cmp		r8, #0
 			ble		end_for
 			
-			ldr		r9, [r9, #8]
-			sub		r7, r7, #1
+			ldr		r10, [r10, #8]
+			sub		r8, r8, #1
 			b		for_loop
 end_for
-			ldr		r8, [r9, #0]		; Address of j-1th Element
-			ldr		r10,[r8, #4]		; Value of j-1th Element
-			ldr		r11,[r9, #4]		; Value of j-th Element of List
-			cmp		r10, r11			; Check arr[j - 1] > arr[j]
+			ldr		r9, 	[r10]		; Address of j-1th Element
+			ldr		r11, [r9, #4]		; Value of j-1th Element
+			ldr		r12, [r10, #4]		; Value of j-th Element of List
+			cmp		r11, r12			; Check arr[j - 1] > arr[j]
 			ble		end_while
 			
-			mov		r0, r9			; Load jth Element into Arg Register
+			mov		r0, r10			; Load jth Element into Arg Register
 			bl		swap
 			sub		r7, r7, #1		; Decrement j--
-			b		while
+			b		while_loop
 end_while
-			add		r6, r6, #1		; Increment i++
+			add		r3, r3, #1		; Increment i++
 			b		insertion_sort
-end_sort
+end_sort		end
 			
 			;#################################################################################
 			;		DELETE DUPLICATES IN LINKED LIST
@@ -87,13 +99,10 @@ delete_dups
 			;		HELPER FUNCTIONS
 			;#################################################################################
 			
-insert 		; Assume r8 is new Data and r6 is tail pointer to new Node
-			sub		r2, r6, #28		; Get Memory Addr of Previous Element
-			add		r9, r6, #36		; Get Memory Addr of Next Element
-			
-			str		r2, [r6, #0]		; Store Address of Prev Element
-			str		r8, [r6, #4]		; Store Data
-			str		r9, [r6, #8]		; Store Address of Next Element
+insert
+			str		r0, [r7, #0]		; Store Address of Prev Element
+			str		r1, [r7, #4]		; Store Data
+			str		r2, [r7, #8]		; Store Address of Next Element
 			
 			mov		r15, r14			; Return (r14 is the Link Register; r15 is the Program Counter)
 			
@@ -119,4 +128,5 @@ delete		ldr		r1, [r0, #0]		; Load PREV Pointer
 			
 			mov		r15, r14
 			
+done
 			end
